@@ -20,20 +20,26 @@ function activateAlarm() {
     alert(`Alarm set for ${formatTime(alarmHour, alarmMinute)}`);
     document.getElementById("clear-alarm").style.display = "block";
 
-    if (!alarmInterval) alarmInterval = setInterval(checkAlarm, 1000);
+    // Start checking every second (Only if not already running)
+    if (!alarmInterval) {
+        alarmInterval = setInterval(checkAlarm, 1000);
+    }
 }
 
 function checkAlarm() {
-    if (!alarmSet || alarmTriggered) return;
+    if (!alarmSet || alarmTriggered) return; // Prevents repeating alerts
 
     const now = new Date();
-    if (now.getHours() === alarmHour && now.getMinutes() === alarmMinute) {
+    let h = now.getHours();
+    let m = now.getMinutes();
+
+    if (h === alarmHour && m === alarmMinute) {
         triggerAlarm();
     }
 }
 
 function triggerAlarm() {
-    alarmTriggered = true;
+    alarmTriggered = true; // Prevents multiple alerts
     alarmSet = false;
     clearInterval(alarmInterval);
     alarmInterval = null;
@@ -45,8 +51,10 @@ function triggerAlarm() {
 }
 
 function clearAlarm() {
-    alarmHour = alarmMinute = null;
-    alarmSet = alarmTriggered = false;
+    alarmHour = null;
+    alarmMinute = null;
+    alarmSet = false;
+    alarmTriggered = false;
     document.getElementById("clear-alarm").style.display = "none";
     document.getElementById("alarm-settings").style.display = "none";
 
@@ -62,3 +70,12 @@ function clearAlarm() {
 function formatTime(h, m) {
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
 }
+
+// ✅ Add Alerts When Checking Sound or Vibration
+document.getElementById("soundCheckbox").addEventListener("change", function () {
+    alert(this.checked ? "🔊 Sound Enabled" : "🔇 Sound Disabled");
+});
+
+document.getElementById("vibrateCheckbox").addEventListener("change", function () {
+    alert(this.checked ? "📳 Vibration Enabled" : "🔕 Vibration Disabled");
+});

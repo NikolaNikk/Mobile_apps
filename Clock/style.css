@@ -1,3 +1,4 @@
+/* Reset default margins & padding */
 body {
     background-color: black;
     text-align: center;
@@ -6,35 +7,54 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; 
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Make it take full screen height */
+}
+
+/* Clock container */
+.time {
+    border: 2px solid darkturquoise;
+    padding: 20px;
+    width: fit-content;
+    display: flex;
+    flex-direction: column;
     align-items: center;
 }
 
-.time {
-    border: 1px solid;
-    padding: 10px;
-    margin-top: 50px;
-    font-size: 60px;
-    width: fit-content;
+/* Clock display */
+#clock {
+    display: flex; /* Make numbers appear in one line */
+    justify-content: center;
+    flex-wrap: nowrap;
 }
 
+/* Date display */
+#date {
+    font-size: 30px;
+    margin-top: 10px;
+}
+
+/* Digit images */
 .digit {
-    width: 100px;
-    height: 150px;
+    width: 80px; /* Adjust for responsiveness */
+    height: 120px;
     margin: 2px;
 }
 
+/* Buttons */
 button {
-    font-size: 24px;
+    font-size: 20px;
     padding: 10px;
-    margin-top: 20px;
+    margin-top: 10px;
     background-color: darkturquoise;
     color: black;
     border: none;
     cursor: pointer;
+    width: 80%;
+    max-width: 300px; /* Prevent buttons from being too wide */
 }
 
 button:hover {
@@ -53,4 +73,20 @@ button:hover {
 #clear-alarm {
     background-color: red;
     color: white;
+}
+
+/* Responsive Adjustments */
+@media screen and (max-width: 768px) {
+    .digit {
+        width: 50px; /* Smaller images on mobile */
+        height: 80px;
+    }
+    
+    body {
+        font-size: 36px; /* Reduce font size on smaller screens */
+    }
+
+    #date {
+        font-size: 24px;
+    }
 }

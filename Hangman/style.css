@@ -1,0 +1,184 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f4;
+    margin: 0;
+}
+
+.container {
+    width: 80%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.left, .right {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+    padding: 20px;
+}
+
+#lives {
+    font-size: 36px; /* Bigger font for lives */
+    color: red;
+}
+
+#word-display {
+    font-size: 36px; /* Bigger font for word display */
+    margin-top: 20px;
+}
+
+input {
+    padding: 15px;
+    font-size: 24px; /* Larger input font */
+    margin: 10px;
+}
+
+button {
+    padding: 15px 25px; /* Larger button size */
+    font-size: 24px; /* Larger button font */
+    cursor: pointer;
+}
+
+h3 {
+    margin-top: 20px;
+}
+
+#guessed-letters {
+    font-size: 24px; /* Larger font for guessed letters */
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    overflow: auto;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px; /* Bigger padding in modal */
+    border-radius: 10px;
+    width: 350px; /* Wider modal */
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.close {
+    color: #aaa;
+    font-size: 36px; /* Larger close button font */
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#play-again-btn {
+    padding: 15px 25px;
+    font-size: 24px; /* Larger play again button */
+    margin-top: 15px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+#play-again-btn:hover {
+    background-color: #45a049;
+}
+
+canvas {
+    width: 250px; /* Increase canvas size */
+    height: 250px;
+}
+
+/* Mobile Layout */
+@media (max-width: 767px) {
+    body {
+        height: auto; /* Allow body to resize naturally on smaller screens */
+    }
+
+    .container {
+        flex-direction: column; /* Stack left and right sections vertically */
+        justify-content: flex-start; /* Align content at the top */
+        align-items: center; /* Center horizontally */
+        padding: 10px;
+        height: 100vh; /* Full viewport height for better positioning */
+    }
+
+    .left, .right {
+        width: 100%; /* Full width for each section */
+        text-align: center;
+        margin-bottom: 15px; /* Reduce space between the left and right sections */
+    }
+
+    #lives {
+        font-size: 28px; /* Adjust font size for mobile */
+        margin-bottom: 5px; /* Reduce space after lives */
+    }
+
+    #word-display {
+        font-size: 28px; /* Adjust word display font */
+        margin: 5px 0; /* Reduced top and bottom margin */
+    }
+
+    input {
+        font-size: 20px; /* Adjust input font size for mobile */
+        padding: 10px;
+        margin: 5px 0; /* Reduce space around the input field */
+    }
+
+    button {
+        font-size: 20px; /* Adjust button size */
+        padding: 12px 20px;
+        margin: 5px 0; /* Reduce space between button and other elements */
+    }
+
+    canvas {
+        width: 200px; /* Adjust canvas size for mobile */
+        height: 200px;
+        margin-bottom: 10px; /* Add space below the canvas */
+    }
+
+    #guessed-letters {
+        font-size: 20px; /* Adjust font size for guessed letters */
+        margin-bottom: 5px; /* Reduced space after guessed letters */
+    }
+
+    #play-again-btn {
+        font-size: 20px; /* Adjust font size for the play-again button */
+        padding: 12px 20px;
+        margin-top: 10px; /* Reduced space above the play-again button */
+    }
+
+    /* Centering elements vertically and reducing height between sections */
+    .left, .right {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+}
+

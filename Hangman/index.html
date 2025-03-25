@@ -9,35 +9,27 @@
 </head>
 <body>
     <div class="container">
-        <!-- Left Section: Lives and Word Display -->
         <div class="left">
             <div id="lives">❤️❤️❤️❤️❤️❤️</div>
             <canvas id="hangmanCanvas" width="200" height="200"></canvas>
             <div id="word-display">_ _ _ _ _</div>
         </div>
-
-        <!-- Right Section: Letter Guess Input -->
         <div class="right">
             <input type="text" id="letter-input" maxlength="1" placeholder="Letter">
             <button onclick="guessLetter()">Guess</button>
-            <div>
-                <h3>Guessed Letters:</h3>
-                <div id="guessed-letters"></div>
-            </div>
+            <h3>Guessed Letters:</h3>
+            <div id="guessed-letters"></div>
         </div>
     </div>
 
-    <!-- Modal -->
     <div id="result-modal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
             <h2 id="modal-result"></h2>
             <p id="modal-message"></p>
             <p id="lives-left"></p>
-            <!-- Play Again Button -->
             <button id="play-again-btn" onclick="resetGame()">Play Again</button>
         </div>
     </div>
-    
 </body>
 </html>

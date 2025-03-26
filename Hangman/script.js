@@ -88,11 +88,7 @@ function guessLetter() {
         alert("Wrong Guess!");
     }
 
-    if (lives === 0) {
-        showModal("Game Over! The word was: " + selectedWord, "You lost!", lives);
-    } else if (!document.getElementById("word-display").innerText.includes("_")) {
-        showModal("Congratulations! You guessed the word: " + selectedWord, "You won!", lives + "❤️");
-    }
+    checkGameStatus()
 }
 
 
@@ -100,7 +96,7 @@ function checkGameStatus() {
     if (lives === 0) {
         showModal(`Game Over! The word was: ${selectedWord}`, "You lost!", "💔");
     } else if (!document.getElementById("word-display").innerText.includes("_")) {
-        showModal(`Congratulations! You guessed the word: ${selectedWord}`, "You won!", "🎉");
+        showModal(`Congratulations! You guessed the word: ${selectedWord}`, "You won!", lives + "❤️");
     }
 }
 

@@ -14,8 +14,13 @@
             <h2>Choose a Language</h2>
             <button onclick="selectLanguage('english')">English</button>
             <button onclick="selectLanguage('bulgarian')">Bulgarian</button>
+            <h3>Select Difficulty</h3>
+            <label><input type="radio" name="difficulty" value="easy" checked> Easy</label>
+            <label><input type="radio" name="difficulty" value="medium"> Medium</label>
+            <label><input type="radio" name="difficulty" value="hard"> Hard</label>
         </div>
     </div>
+
 
     <div class="container">
         <div class="left">
@@ -36,11 +41,10 @@
 
     <div id="result-modal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
             <h2 id="modal-result"></h2>
             <p id="modal-message"></p>
             <p id="lives-left"></p>
-            <button id="play-again-btn" onclick="resetGame()">Play Again</button>
+            <button onclick="resetGame()">Play Again</button>
         </div>
     </div>
 

@@ -2,12 +2,9 @@ let selectedWord = "";
 let guessedLetters = [];
 let lives = 6;
 let currentImageIndex = 0;
-let language = 'english';
-
-const words = {
-    english: ["apple", "banana", "grape", "orange", "melon"],
-    bulgarian: ["ябълка", "банан", "грозде", "портокал", "диня"]
-};
+let language = "english";
+let difficulty = "medium";
+let wordsData = {};
 
 const images = [
     "images/pole.png",
@@ -19,10 +16,23 @@ const images = [
     "images/leg2.png"
 ];
 
-function getRandomWord() {
-    const randomIndex = Math.floor(Math.random() * words[language].length);
-    return words[language][randomIndex];
+
+async function loadWords() {
+    try {
+        const response = await fetch("words.json");
+        wordsData = await response.json();
+    } catch (error) {
+        console.error("Error loading words:", error);
+    }
 }
+
+
+function getRandomWord() {
+    const wordList = wordsData[language][difficulty];
+    const randomIndex = Math.floor(Math.random() * wordList.length);
+    return wordList[randomIndex];
+}
+
 
 function initializeGame() {
     selectedWord = getRandomWord();
@@ -32,16 +42,18 @@ function initializeGame() {
     updateDisplay();
 }
 
+
 function updateDisplay() {
-    let displayWord = selectedWord.split('').map(letter => 
-        guessedLetters.includes(letter) ? letter : '_').join(' ');
+    let displayWord = selectedWord.split("").map(letter => 
+        guessedLetters.includes(letter) ? letter : "_").join(" ");
 
     document.getElementById("word-display").innerText = displayWord;
-    document.getElementById("guessed-letters").innerText = guessedLetters.join(', ');
+    document.getElementById("guessed-letters").innerText = guessedLetters.join(", ");
     document.getElementById("lives").innerText = "❤️".repeat(lives);
 
     updateHangmanImage();
 }
+
 
 function updateHangmanImage() {
     const image = new Image();
@@ -79,46 +91,52 @@ function guessLetter() {
     if (lives === 0) {
         showModal("Game Over! The word was: " + selectedWord, "You lost!", lives);
     } else if (!document.getElementById("word-display").innerText.includes("_")) {
-        showModal("Congratulations! You guessed the word: " + selectedWord, "You won!", lives);
+        showModal("Congratulations! You guessed the word: " + selectedWord, "You won!", lives + "❤️");
     }
 }
 
-function showModal(message, result, livesLeft) {
-    const modal = document.getElementById("result-modal");
-    document.getElementById("modal-message").innerText = message;
-    document.getElementById("modal-result").innerText = result;
-    document.getElementById("lives-left").innerText = `❤️ ${livesLeft}`;
-    modal.style.display = "flex";
+
+function checkGameStatus() {
+    if (lives === 0) {
+        showModal(`Game Over! The word was: ${selectedWord}`, "You lost!", "💔");
+    } else if (!document.getElementById("word-display").innerText.includes("_")) {
+        showModal(`Congratulations! You guessed the word: ${selectedWord}`, "You won!", "🎉");
+    }
 }
 
-function closeModal() {
-    const modal = document.getElementById("result-modal");
-    modal.style.display = "none";
+
+function showModal(message, result, icon) {
+    document.getElementById("modal-message").innerText = message;
+    document.getElementById("modal-result").innerText = result;
+    document.getElementById("lives-left").innerText = icon;
+
+    let resultModal = document.getElementById("result-modal");
+    resultModal.style.display = "flex";
 }
 
 function resetGame() {
-    closeModal();
+    document.getElementById("result-modal").style.display = "none";
     openLanguageModal();
 }
 
+
 function openLanguageModal() {
-    const modal = document.getElementById("language-modal");
-    modal.style.display = "flex";
+    document.getElementById("language-modal").style.display = "flex";
 }
+
 
 function selectLanguage(selectedLang) {
     language = selectedLang;
-    closeLanguageModal();
+    difficulty = document.querySelector('input[name="difficulty"]:checked').value;
+    
+    document.getElementById("language-modal").style.display = "none";
     initializeGame();
 }
 
-function closeLanguageModal() {
-    const modal = document.getElementById("language-modal");
-    modal.style.display = "none";
-}
 
-window.onload = function() {
+window.onload = async function() {
     const modal = document.getElementById("result-modal");
     modal.style.display = "none";
+    await loadWords();
     openLanguageModal();
 };

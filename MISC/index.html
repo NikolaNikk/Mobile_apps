@@ -12,13 +12,13 @@
     <!-- Language & Difficulty Selection Modal -->
     <div id="language-modal" class="modal">
         <div class="modal-content">
-            <h2>Choose a Language</h2>
+            <h2 id="language-modal-title">Choose a Language</h2>
             <button onclick="selectLanguage('english')">English</button>
             <button onclick="selectLanguage('bulgarian')">Bulgarian</button>
             <h3>Select Difficulty</h3>
-            <label><input type="radio" name="difficulty" value="easy" checked> Easy</label>
-            <label><input type="radio" name="difficulty" value="medium"> Medium</label>
-            <label><input type="radio" name="difficulty" value="hard"> Hard</label>
+            <label><input type="radio" name="difficulty" value="easy" checked> <span>Easy</span></label>
+            <label><input type="radio" name="difficulty" value="medium"> <span>Medium</span></label>
+            <label><input type="radio" name="difficulty" value="hard"> <span>Hard</span></label>
         </div>
     </div>
 
@@ -32,9 +32,9 @@
 
         <div class="right">
             <input type="text" id="letter-input" maxlength="1" placeholder="Letter">
-            <button onclick="guessLetter()">Guess</button>
+            <button id="guess-button" onclick="guessLetter()">Guess</button>
             <div>
-                <h3>Guessed Letters:</h3>
+                <h3 id="guessed-letters-label">Guessed Letters:</h3>
                 <div id="guessed-letters"></div>
             </div>
         </div>
@@ -46,7 +46,7 @@
             <h2 id="modal-result"></h2>
             <p id="modal-message"></p>
             <p id="lives-left"></p>
-            <button onclick="resetGame()">Play Again</button>
+            <button id="play-again-btn" onclick="resetGame()">Play Again</button>
         </div>
     </div>
 

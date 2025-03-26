@@ -1,0 +1,32 @@
+{
+  "english": {
+    "guess": "Guess",
+    "letter": "Letter",
+    "guessedLetters": "Guessed Letters:",
+    "lives": "❤️❤️❤️❤️❤️❤️",
+    "winMessage": "Congratulations! You guessed the word: ",
+    "loseMessage": "Game Over! The word was: ",
+    "playAgain": "Play Again",
+    "youWon": "You won!",
+    "youLost": "You lost!",
+    "chooseLanguage": "Choose a Language",
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard"
+  },
+  "bulgarian": {
+    "guess": "Познай",
+    "letter": "Буква",
+    "guessedLetters": "Познати букви:",
+    "lives": "❤️❤️❤️❤️❤️❤️",
+    "winMessage": "Честито! Познахте думата: ",
+    "loseMessage": "Играта приключи! Думата беше: ",
+    "playAgain": "Играй отново",
+    "youWon": "Печелите!",
+    "youLost": "Загубихте!",
+    "chooseLanguage": "Изберете език",
+    "easy": "Лесно",
+    "medium": "Средно",
+    "hard": "Трудно"
+  }
+}

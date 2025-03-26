@@ -1,0 +1,12 @@
+{
+    "english": {
+        "easy": ["cat", "dog", "sun"],
+        "medium": ["apple", "grape", "house"],
+        "hard": ["elephant", "airplane", "octopus"]
+    },
+    "bulgarian": {
+        "easy": ["кит", "ден", "нощ"],
+        "medium": ["грозде", "банан", "къща"],
+        "hard": ["портокал", "октопод", "ябълка"]
+    }
+}

@@ -3,11 +3,8 @@ let guessedLetters = [];
 let lives = 6;
 let currentImageIndex = 0;
 let language = "english";
-
-const words = {
-    english: ["apple", "banana", "grape", "orange", "melon"],
-    bulgarian: ["ябълка", "банан", "грозде", "портокал", "диня"]
-};
+let difficulty = "medium";
+let wordsData = {};
 
 const images = [
     "images/pole.png",
@@ -19,10 +16,21 @@ const images = [
     "images/leg2.png"
 ];
 
-// Get random word based on selected language
+// Load words from JSON
+async function loadWords() {
+    try {
+        const response = await fetch("words.json");
+        wordsData = await response.json();
+    } catch (error) {
+        console.error("Error loading words:", error);
+    }
+}
+
+// Get random word based on selected language & difficulty
 function getRandomWord() {
-    const randomIndex = Math.floor(Math.random() * words[language].length);
-    return words[language][randomIndex];
+    const wordList = wordsData[language][difficulty];
+    const randomIndex = Math.floor(Math.random() * wordList.length);
+    return wordList[randomIndex];
 }
 
 // Initialize the game
@@ -48,12 +56,11 @@ function updateDisplay() {
 
 // Update the hangman drawing
 function updateHangmanImage() {
-    const canvas = document.getElementById("hangmanCanvas");
-    const ctx = canvas.getContext("2d");
     const image = new Image();
-    
     image.src = images[currentImageIndex];
     image.onload = () => {
+        const canvas = document.getElementById("hangmanCanvas");
+        const ctx = canvas.getContext("2d");
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(image, 0, 0, 200, 200);
     };
@@ -96,34 +103,32 @@ function showModal(message, result, icon) {
     document.getElementById("modal-result").innerText = result;
     document.getElementById("lives-left").innerText = icon;
 
-    let resultModal = new bootstrap.Modal(document.getElementById("result-modal"));
-    resultModal.show();
+    let resultModal = document.getElementById("result-modal");
+    resultModal.style.display = "flex";
 }
 
 // Close modal and restart game
 function resetGame() {
-    let resultModal = bootstrap.Modal.getInstance(document.getElementById("result-modal"));
-    if (resultModal) resultModal.hide();
-
+    document.getElementById("result-modal").style.display = "none";
     openLanguageModal();
 }
 
-// Open language selection modal
+// Open language & difficulty selection modal
 function openLanguageModal() {
-    let languageModal = new bootstrap.Modal(document.getElementById("language-modal"));
-    languageModal.show();
+    document.getElementById("language-modal").style.display = "flex";
 }
 
-// Select game language
+// Select game language & difficulty
 function selectLanguage(selectedLang) {
     language = selectedLang;
-    let languageModal = bootstrap.Modal.getInstance(document.getElementById("language-modal"));
-    if (languageModal) languageModal.hide();
-
+    difficulty = document.querySelector('input[name="difficulty"]:checked').value;
+    
+    document.getElementById("language-modal").style.display = "none";
     initializeGame();
 }
 
-// Load the game on window start
-window.onload = function() {
+// Load words and show language selection on page load
+window.onload = async function() {
+    await loadWords();
     openLanguageModal();
 };

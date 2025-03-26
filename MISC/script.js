@@ -2,12 +2,11 @@ let selectedWord = "";
 let guessedLetters = [];
 let lives = 6;
 let currentImageIndex = 0;
-let language = "english"; // Default language
+let language = "english";
 let difficulty = "medium"; 
 let wordsData = {};
-let texts = {}; // To store translations
+let texts = {};
 
-// Load words from JSON
 async function loadWords() {
     try {
         const response = await fetch("words.json");
@@ -17,7 +16,6 @@ async function loadWords() {
     }
 }
 
-// Load translations from JSON
 async function loadTranslations() {
     try {
         const response = await fetch("translations.json");
@@ -27,14 +25,12 @@ async function loadTranslations() {
     }
 }
 
-// Get random word based on selected language & difficulty
 function getRandomWord() {
     const wordList = wordsData[language][difficulty];
     const randomIndex = Math.floor(Math.random() * wordList.length);
     return wordList[randomIndex];
 }
 
-// Initialize the game
 function initializeGame() {
     selectedWord = getRandomWord();
     guessedLetters = [];
@@ -43,7 +39,6 @@ function initializeGame() {
     updateDisplay();
 }
 
-// Update game display
 function updateDisplay() {
     let displayWord = selectedWord.split("").map(letter => 
         guessedLetters.includes(letter) ? letter : "_").join(" ");
@@ -55,7 +50,6 @@ function updateDisplay() {
     updateHangmanImage();
 }
 
-// Update the hangman drawing
 function updateHangmanImage() {
     const image = new Image();
     image.src = images[currentImageIndex];
@@ -67,7 +61,6 @@ function updateHangmanImage() {
     };
 }
 
-// Handle letter guesses
 function guessLetter() {
     let input = document.getElementById("letter-input").value.toLowerCase().trim();
     document.getElementById("letter-input").value = "";
@@ -89,7 +82,6 @@ function guessLetter() {
     checkGameStatus();
 }
 
-// Check game status (win or lose)
 function checkGameStatus() {
     if (lives === 0) {
         showModal(`${texts[language].loseMessage} ${selectedWord}`, texts[language].youLost, "💔");
@@ -98,7 +90,6 @@ function checkGameStatus() {
     }
 }
 
-// Show modal popup
 function showModal(message, result, icon) {
     document.getElementById("modal-message").innerText = message;
     document.getElementById("modal-result").innerText = result;
@@ -108,19 +99,16 @@ function showModal(message, result, icon) {
     resultModal.style.display = "flex";
 }
 
-// Close modal and restart game
 function resetGame() {
     document.getElementById("result-modal").style.display = "none";
     openLanguageModal();
 }
 
-// Open language & difficulty selection modal
 function openLanguageModal() {
     document.getElementById("language-modal").style.display = "flex";
     document.getElementById("language-modal-title").innerText = texts[language].chooseLanguage;
 }
 
-// Select game language & difficulty
 function selectLanguage(selectedLang) {
     language = selectedLang;
     difficulty = document.querySelector('input[name="difficulty"]:checked').value;
@@ -130,7 +118,6 @@ function selectLanguage(selectedLang) {
     initializeGame();
 }
 
-// Update all UI texts based on selected language
 function updateLanguageText() {
     document.getElementById("guess-button").innerText = texts[language].guess;
     document.getElementById("letter-input").placeholder = texts[language].letter;
@@ -143,7 +130,6 @@ function updateLanguageText() {
     document.querySelector('input[value="hard"]').nextElementSibling.innerText = texts[language].hard;
 }
 
-// Load words and translations on page load
 window.onload = async function() {
     await loadWords();
     await loadTranslations();

@@ -5,16 +5,7 @@ let currentImageIndex = 0;
 let language = "english";
 let difficulty = "medium";
 let wordsData = {};
-
-const images = [
-    "images/pole.png",
-    "images/head.png",
-    "images/body.png",
-    "images/arm1.png",
-    "images/arm2.png",
-    "images/leg1.png",
-    "images/leg2.png"
-];
+let texts = {};  // To store translations
 
 // Load words from JSON
 async function loadWords() {
@@ -23,6 +14,16 @@ async function loadWords() {
         wordsData = await response.json();
     } catch (error) {
         console.error("Error loading words:", error);
+    }
+}
+
+// Load translations from JSON
+async function loadTranslations() {
+    try {
+        const response = await fetch("translations.json");
+        texts = await response.json();
+    } catch (error) {
+        console.error("Error loading translations:", error);
     }
 }
 
@@ -91,9 +92,9 @@ function guessLetter() {
 // Check game status (win or lose)
 function checkGameStatus() {
     if (lives === 0) {
-        showModal(`Game Over! The word was: ${selectedWord}`, "You lost!", "💔");
+        showModal(`${texts[language].loseMessage} ${selectedWord}`, texts[language].youLost, "💔");
     } else if (!document.getElementById("word-display").innerText.includes("_")) {
-        showModal(`Congratulations! You guessed the word: ${selectedWord}`, "You won!", "🎉");
+        showModal(`${texts[language].winMessage} ${selectedWord}`, texts[language].youWon, "🎉");
     }
 }
 
@@ -116,19 +117,36 @@ function resetGame() {
 // Open language & difficulty selection modal
 function openLanguageModal() {
     document.getElementById("language-modal").style.display = "flex";
+    document.getElementById("language-modal-title").innerText = texts[language].chooseLanguage;
 }
 
 // Select game language & difficulty
 function selectLanguage(selectedLang) {
     language = selectedLang;
     difficulty = document.querySelector('input[name="difficulty"]:checked').value;
-    
+
     document.getElementById("language-modal").style.display = "none";
+    updateLanguageText();
     initializeGame();
 }
 
-// Load words and show language selection on page load
+// Update all UI texts based on selected language
+function updateLanguageText() {
+    // Update all UI text content dynamically based on language
+    document.getElementById("guess-button").innerText = texts[language].guess;
+    document.getElementById("letter-input").placeholder = texts[language].letter;
+    document.getElementById("guessed-letters-label").innerText = texts[language].guessedLetters;
+    document.getElementById("lives").innerText = texts[language].lives;
+    document.getElementById("play-again-btn").innerText = texts[language].playAgain;
+
+    document.querySelector('input[value="easy"]').nextElementSibling.innerText = texts[language].easy;
+    document.querySelector('input[value="medium"]').nextElementSibling.innerText = texts[language].medium;
+    document.querySelector('input[value="hard"]').nextElementSibling.innerText = texts[language].hard;
+}
+
+// Load words and translations on page load
 window.onload = async function() {
     await loadWords();
+    await loadTranslations();
     openLanguageModal();
 };

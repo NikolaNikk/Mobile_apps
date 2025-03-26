@@ -2,10 +2,10 @@ let selectedWord = "";
 let guessedLetters = [];
 let lives = 6;
 let currentImageIndex = 0;
-let language = "english";
-let difficulty = "medium";
+let language = "english"; // Default language
+let difficulty = "medium"; 
 let wordsData = {};
-let texts = {};  // To store translations
+let texts = {}; // To store translations
 
 // Load words from JSON
 async function loadWords() {
@@ -132,7 +132,6 @@ function selectLanguage(selectedLang) {
 
 // Update all UI texts based on selected language
 function updateLanguageText() {
-    // Update all UI text content dynamically based on language
     document.getElementById("guess-button").innerText = texts[language].guess;
     document.getElementById("letter-input").placeholder = texts[language].letter;
     document.getElementById("guessed-letters-label").innerText = texts[language].guessedLetters;

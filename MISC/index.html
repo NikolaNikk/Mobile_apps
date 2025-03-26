@@ -4,47 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hangman Game</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    
+    <!-- Bootstrap JS -->
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script defer src="script.js"></script>
 </head>
-<body>
+<body class="d-flex justify-content-center align-items-center vh-100 bg-light">
 
     <!-- Language Selection Modal -->
-    <div id="language-modal" class="modal">
-        <div class="modal-content">
-            <h2>Choose a Language</h2>
-            <button onclick="selectLanguage('english')">English</button>
-            <button onclick="selectLanguage('bulgarian')">Bulgarian</button>
-        </div>
-    </div>
-
-    <div class="container">
-        <!-- Left Section: Lives and Word Display -->
-        <div class="left">
-            <div id="lives">❤️❤️❤️❤️❤️❤️</div>
-            <canvas id="hangmanCanvas" width="200" height="200"></canvas>
-            <div id="word-display">_ _ _ _ _</div>
-        </div>
-
-        <!-- Right Section: Letter Guess Input -->
-        <div class="right">
-            <input type="text" id="letter-input" maxlength="1" placeholder="Letter">
-            <button onclick="guessLetter()">Guess</button>
-            <div>
-                <h3>Guessed Letters:</h3>
-                <div id="guessed-letters"></div>
+    <div class="modal fade" id="language-modal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center p-4">
+                <h2 class="mb-3">Choose a Language</h2>
+                <button class="btn btn-primary m-2" onclick="selectLanguage('english')">English</button>
+                <button class="btn btn-secondary m-2" onclick="selectLanguage('bulgarian')">Bulgarian</button>
             </div>
         </div>
     </div>
 
-    <!-- End Game Modal -->
-    <div id="result-modal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h2 id="modal-result"></h2>
-            <p id="modal-message"></p>
-            <p id="lives-left"></p>
-            <button id="play-again-btn" onclick="resetGame()">Play Again</button>
+    <div class="container d-flex justify-content-between align-items-center">
+        <!-- Left Section (Canvas + Word Display) -->
+        <div class="left text-center">
+            <div id="lives" class="fs-3 text-danger">❤️❤️❤️❤️❤️❤️</div>
+            <canvas id="hangmanCanvas" width="200" height="200" class="border my-3"></canvas>
+            <div id="word-display" class="fs-2 fw-bold">_ _ _ _ _</div>
+        </div>
+
+        <!-- Right Section (Letter Input + Guessed Letters) -->
+        <div class="right text-center">
+            <input type="text" id="letter-input" maxlength="1" class="form-control form-control-lg w-50 mx-auto my-2 text-center" placeholder="Letter">
+            <button class="btn btn-success btn-lg" onclick="guessLetter()">Guess</button>
+            <h3 class="mt-4">Guessed Letters:</h3>
+            <div id="guessed-letters" class="fs-4"></div>
+        </div>
+    </div>
+
+    <!-- Game Result Modal -->
+    <div class="modal fade" id="result-modal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center p-4">
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
+                <h2 id="modal-result" class="mb-3"></h2>
+                <p id="modal-message"></p>
+                <p id="lives-left" class="fs-4"></p>
+                <button id="play-again-btn" class="btn btn-primary mt-3" onclick="resetGame()">Play Again</button>
+            </div>
         </div>
     </div>
 

@@ -3,9 +3,19 @@ let guessedLetters = [];
 let lives = 6;
 let currentImageIndex = 0;
 let language = "english";
-let difficulty = "medium"; 
+let difficulty = "medium";
 let wordsData = {};
-let texts = {};
+let texts = {}; // Fix: Declare translations variable
+
+const images = [
+    "images/pole.png",
+    "images/head.png",
+    "images/body.png",
+    "images/arm1.png",
+    "images/arm2.png",
+    "images/leg1.png",
+    "images/leg2.png"
+];
 
 async function loadWords() {
     try {
@@ -40,9 +50,10 @@ function initializeGame() {
 }
 
 function updateDisplay() {
-    let displayWord = selectedWord.split("").map(letter => 
-        guessedLetters.includes(letter) ? letter : "_").join(" ");
-
+    let displayWord = selectedWord
+        .split("")
+        .map(letter => guessedLetters.includes(letter) ? letter : "_")
+        .join(" ");
     document.getElementById("word-display").innerText = displayWord;
     document.getElementById("guessed-letters").innerText = guessedLetters.join(", ");
     document.getElementById("lives").innerText = "❤️".repeat(lives);
@@ -51,19 +62,20 @@ function updateDisplay() {
 }
 
 function updateHangmanImage() {
+    const canvas = document.getElementById("hangmanCanvas");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     const image = new Image();
     image.src = images[currentImageIndex];
     image.onload = () => {
-        const canvas = document.getElementById("hangmanCanvas");
-        const ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(image, 0, 0, 200, 200);
     };
 }
 
 function guessLetter() {
-    let input = document.getElementById("letter-input").value.toLowerCase().trim();
-    document.getElementById("letter-input").value = "";
+    let input = document.getElementById("letter-input").value.toLowerCase();
+    document.getElementById("letter-input").value = '';
 
     if (!input || guessedLetters.includes(input) || input.length !== 1) return;
 
@@ -86,7 +98,7 @@ function checkGameStatus() {
     if (lives === 0) {
         showModal(`${texts[language].loseMessage} ${selectedWord}`, texts[language].youLost, "💔");
     } else if (!document.getElementById("word-display").innerText.includes("_")) {
-        showModal(`${texts[language].winMessage} ${selectedWord}`, texts[language].youWon, "🎉");
+        showModal(`${texts[language].winMessage} ${selectedWord}`, texts[language].youWon, `${lives} ❤️`);
     }
 }
 
@@ -95,8 +107,8 @@ function showModal(message, result, icon) {
     document.getElementById("modal-result").innerText = result;
     document.getElementById("lives-left").innerText = icon;
 
-    let resultModal = document.getElementById("result-modal");
-    resultModal.style.display = "flex";
+    const modal = document.getElementById("result-modal");
+    modal.style.display = "flex";
 }
 
 function resetGame() {
@@ -106,7 +118,6 @@ function resetGame() {
 
 function openLanguageModal() {
     document.getElementById("language-modal").style.display = "flex";
-    document.getElementById("language-modal-title").innerText = texts[language].chooseLanguage;
 }
 
 function selectLanguage(selectedLang) {
@@ -122,15 +133,19 @@ function updateLanguageText() {
     document.getElementById("guess-button").innerText = texts[language].guess;
     document.getElementById("letter-input").placeholder = texts[language].letter;
     document.getElementById("guessed-letters-label").innerText = texts[language].guessedLetters;
-    document.getElementById("lives").innerText = texts[language].lives;
     document.getElementById("play-again-btn").innerText = texts[language].playAgain;
+    document.getElementById("language").innerText = texts[language].language;
 
+    // Optional: update difficulty labels dynamically
+    /*
     document.querySelector('input[value="easy"]').nextElementSibling.innerText = texts[language].easy;
     document.querySelector('input[value="medium"]').nextElementSibling.innerText = texts[language].medium;
     document.querySelector('input[value="hard"]').nextElementSibling.innerText = texts[language].hard;
+    */
 }
 
-window.onload = async function() {
+window.onload = async function () {
+    document.getElementById("result-modal").style.display = "none";
     await loadWords();
     await loadTranslations();
     openLanguageModal();

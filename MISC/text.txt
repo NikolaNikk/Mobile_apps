@@ -30,3 +30,29 @@
     "hard": "Трудно"
   }
 }
+<!-- Language Modal -->
+<div class="modal fade" id="language-modal" tabindex="-1" aria-labelledby="language-modal-title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center p-4">
+      <h2 id="language-modal-title">Choose a Language/Избери език</h2>
+      <button class="btn btn-primary m-1" onclick="selectLanguage('english')">English</button>
+      <button class="btn btn-secondary m-1" onclick="selectLanguage('bulgarian')">Bulgarian</button>
+      <h3>Select Difficulty / Избери Трудност</h3>
+      <label><input type="radio" name="difficulty" value="easy" checked> Easy / Лесно</label><br>
+      <label><input type="radio" name="difficulty" value="medium"> Medium / Средно</label><br>
+      <label><input type="radio" name="difficulty" value="hard"> Hard / Трудно</label>
+    </div>
+  </div>
+</div>
+
+<!-- Result Modal -->
+<div class="modal fade" id="result-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center p-4">
+      <h2 id="modal-result"></h2>
+      <p id="modal-message"></p>
+      <p id="lives-left"></p>
+      <button id="play-again-btn" class="btn btn-success" onclick="resetGame()">Play Again</button>
+    </div>
+  </div>
+</div>

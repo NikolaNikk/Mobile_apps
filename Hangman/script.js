@@ -25,7 +25,14 @@ async function loadWords() {
         console.error("Error loading words:", error);
     }
 }
-
+async function loadTranslations() {
+    try {
+        const response = await fetch("translations.json");
+        texts = await response.json();
+    } catch (error) {
+        console.error("Error loading translations:", error);
+    }
+}
 
 function getRandomWord() {
     const wordList = wordsData[language][difficulty];
@@ -78,14 +85,14 @@ function guessLetter() {
 
     if (correctGuess) {
         updateDisplay();
-        alert("Correct Guess!");
+       // alert("Correct Guess!");
     } else {
         lives--;
         if (lives < 6) {
             currentImageIndex++;
         }
         updateDisplay();
-        alert("Wrong Guess!");
+        //alert("Wrong Guess!");
     }
 
     checkGameStatus()
@@ -94,9 +101,9 @@ function guessLetter() {
 
 function checkGameStatus() {
     if (lives === 0) {
-        showModal(`Game Over! The word was: ${selectedWord}`, "You lost!", "💔");
+        showModal(`${texts[language].loseMessage} ${selectedWord}`, `${texts[language].youLost}`, "💔");
     } else if (!document.getElementById("word-display").innerText.includes("_")) {
-        showModal(`Congratulations! You guessed the word: ${selectedWord}`, "You won!", lives + "❤️");
+        showModal(`${texts[language].winMessage} ${selectedWord}`, `${texts[language].youWon}`, lives + "❤️");
     }
 }
 
@@ -118,15 +125,29 @@ function resetGame() {
 
 function openLanguageModal() {
     document.getElementById("language-modal").style.display = "flex";
+    
 }
-
 
 function selectLanguage(selectedLang) {
     language = selectedLang;
     difficulty = document.querySelector('input[name="difficulty"]:checked').value;
-    
+
     document.getElementById("language-modal").style.display = "none";
+    updateLanguageText();
     initializeGame();
+}
+
+function updateLanguageText() {
+    document.getElementById("guess-button").innerText = texts[language].guess;
+    document.getElementById("letter-input").placeholder = texts[language].letter;
+    document.getElementById("guessed-letters-label").innerText = texts[language].guessedLetters;
+    document.getElementById("lives").innerText = texts[language].lives;
+    document.getElementById("play-again-btn").innerText = texts[language].playAgain;
+    document.getElementById("language").innerText = texts[language].language;
+
+    /*document.querySelector('input[value="easy"]').nextElementSibling.innerText = texts[language].easy;
+    document.querySelector('input[value="medium"]').nextElementSibling.innerText = texts[language].medium;
+    document.querySelector('input[value="hard"]').nextElementSibling.innerText = texts[language].hard;*/
 }
 
 
@@ -134,5 +155,6 @@ window.onload = async function() {
     const modal = document.getElementById("result-modal");
     modal.style.display = "none";
     await loadWords();
+    await loadTranslations();
     openLanguageModal();
 };

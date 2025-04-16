@@ -1,27 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE HTML>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hangman Game</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: content: https://ssl.gstatic.com; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+    <script src="cordova.js"></script>
+    <script src="components/loader.js"></script>
     <link rel="stylesheet" href="style.css">
     <script defer src="script.js"></script>
 </head>
 <body>
-
-    <div id="language-modal" class="modal">
+	<div id="language-modal" class="modal">
         <div class="modal-content">
-            <h2>Choose a Language</h2>
+            <h2 id="language-modal-title">Choose a Language/Избери език</h2>
             <button onclick="selectLanguage('english')">English</button>
             <button onclick="selectLanguage('bulgarian')">Bulgarian</button>
-            <h3>Select Difficulty</h3>
-            <label><input type="radio" name="difficulty" value="easy" checked> Easy</label>
-            <label><input type="radio" name="difficulty" value="medium"> Medium</label>
-            <label><input type="radio" name="difficulty" value="hard"> Hard</label>
+            <h3>Select Difficulty/ Избери Трудност</h3>
+            <label><input type="radio" name="difficulty" value="easy" checked> <span>Easy/Лесно</span></label>
+            <label><input type="radio" name="difficulty" value="medium"> <span>Medium/Средно</span></label>
+            <label><input type="radio" name="difficulty" value="hard"> <span>Hard/Трудно</span></label>
         </div>
     </div>
-
-
+    
     <div class="container">
         <div class="left">
             <div id="lives">❤️❤️❤️❤️❤️❤️</div>
@@ -30,10 +30,13 @@
         </div>
 
         <div class="right">
-            <input type="text" id="letter-input" maxlength="1" placeholder="Letter">
-            <button onclick="guessLetter()">Guess</button>
             <div>
-                <h3>Guessed Letters:</h3>
+                <h3 id="language">English</h3>
+            </div>
+            <input type="text" id="letter-input" maxlength="1" placeholder="Letter">
+            <button id="guess-button" onclick="guessLetter()">Guess</button>
+            <div>
+                <h3 id="guessed-letters-label">Guessed Letters:</h3>
                 <div id="guessed-letters"></div>
             </div>
         </div>
@@ -44,7 +47,7 @@
             <h2 id="modal-result"></h2>
             <p id="modal-message"></p>
             <p id="lives-left"></p>
-            <button onclick="resetGame()">Play Again</button>
+            <button id="play-again-btn" onclick="resetGame()">Play Again</button>
         </div>
     </div>
 

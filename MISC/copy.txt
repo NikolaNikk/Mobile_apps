@@ -21,8 +21,7 @@ var app = new Framework7({
   },
   on: {
     init: function () {
-      var f7 = this;
-      if (f7.device.cordova) {
+      if (this.device.cordova) {
         document.addEventListener('deviceready', onDeviceReady, false);
       }
     },
@@ -30,70 +29,58 @@ var app = new Framework7({
 });
 
 function onDeviceReady() {
-  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
-    fs.root.getFile(submitFileName, { create: true }, function (fileEntry) {
-        fileEntryGlobal = fileEntry;
-      fileEntry.file(function (file) {
-        var reader = new FileReader();
-        reader.onloadend = function () {
-          if (this.result) {
-            try {
-              submits = JSON.parse(this.result);
-            } catch (e) {
-              submits = [];
-            }
-          }
-        };
-        reader.readAsText(file);
-      });
+  getFileEntry(true, fileEntry => {
+    fileEntryGlobal = fileEntry;
+    readFile(fileEntry, content => {
+      try { submits = JSON.parse(content); } catch (_) { submits = []; }
     });
-  }, onError);
+  });
 }
 
 function onError(err) {
-  console.error("File error: ", err);
+  console.error("File error:", err);
   app.dialog.alert('Грешка при достъп до файловата система.');
 }
 
-function saveSubmitsJson() {
-  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
-    fs.root.getFile(submitFileName, { create: true }, function (fileEntry) {
-      fileEntry.createWriter(function (fileWriter) {
-        
-        fileWriter.truncate(0);
-        fileWriter.onwriteend = function () {
-          
-          fileWriter.onwriteend = function () {
-            app.dialog.alert('Успешно изпратено!');
-          };
-          fileWriter.write(JSON.stringify(submits));
-        };
-      }, onError);
-    });
+function getFileEntry(create, callback) {
+  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, fs => {
+    fs.root.getFile(submitFileName, { create }, callback, onError);
   }, onError);
 }
 
+function readFile(fileEntry, callback) {
+  fileEntry.file(file => {
+    const reader = new FileReader();
+    reader.onloadend = () => callback(reader.result);
+    reader.readAsText(file);
+  });
+}
+
+function writeFile(fileEntry, content, onSuccess) {
+  fileEntry.createWriter(writer => {
+    writer.onwriteend = () => onSuccess && onSuccess();
+    writer.write(new Blob([content], { type: 'text/plain' }));
+  }, onError);
+}
+
+function saveSubmitsJson() {
+  getFileEntry(true, fileEntry => {
+    writeFile(fileEntry, JSON.stringify(submits), () => {
+      app.dialog.alert('Успешно изпратено!');
+    });
+  });
+}
 
 function collectAnswers() {
   const name = $('input[name="name"]').val().trim();
-  if (!name) {
-    app.dialog.alert("Моля, въведете име.");
-    return;
-  }
-
-  const alreadySubmitted = submits.some(s => s.name.toLowerCase() === name.toLowerCase());
-  if (alreadySubmitted) {
-    app.dialog.alert("Потребителят вече е изпратил отговор.");
-    return;
-  }
+  if (!name) return app.dialog.alert("Моля, въведете име.");
+  if (submits.some(s => s.name.toLowerCase() === name.toLowerCase()))
+    return app.dialog.alert("Потребителят вече е изпратил отговор.");
 
   const answers = { name };
   $('[name^="question_"]').each(function () {
-    const qName = this.name;
-    if (this.type === "radio" && this.checked) {
-      answers[qName] = this.value;
-    } else if (this.type === "text") {
-      answers[qName] = this.value;
+    if ((this.type === "radio" && this.checked) || this.type === "text") {
+      answers[this.name] = this.value;
     }
   });
 
@@ -101,51 +88,35 @@ function collectAnswers() {
   saveSubmitsJson();
 }
 
-$('body').on('click', 'button[type="submit"]', function (e) {
+$('body').on('click', 'button[type="submit"]', e => {
   e.preventDefault();
   collectAnswers();
 });
 
 fetch('questions.json')
-  .then(response => response.json())
-  .then(data => generateQuestions(data))
-  .catch(error => console.error('Error loading questions:', error));
+  .then(res => res.json())
+  .then(generateQuestions)
+  .catch(err => console.error('Error loading questions:', err));
 
 function generateQuestions(questions) {
-  const container = $('.block-strong');
-  container.html('');
+  const container = $('.block-strong').html('');
   questions.forEach(q => {
     const wrapper = $('<div class="question-block"></div>');
-    const questionTitle = $(`<p><strong>${q.number}. ${q.question}</strong></p>`);
-    wrapper.append(questionTitle);
+    wrapper.append(`<p><strong>${q.number}. ${q.question}</strong></p>`);
 
     if (q.type === 'text') {
-      const textarea = $(`<div class="list no-hairlines-md">
-        <ul>
-          <li class="item-content item-input">
-            <div class="item-inner">
-              <div class="item-input-wrap">
-                <input type="text" name="question_${q.number}" placeholder="Вашият отговор..." required>
-              </div>
-            </div>
-          </li>
-        </ul>
-      </div>`);
-      wrapper.append(textarea);
+      wrapper.append(`<div class="list no-hairlines-md"><ul><li class="item-content item-input">
+        <div class="item-inner"><div class="item-input-wrap">
+        <input type="text" name="question_${q.number}" placeholder="Вашият отговор..." required>
+        </div></div></li></ul></div>`);
     } else if (q.type === 'radio') {
       const list = $('<div class="list"><ul></ul></div>');
-      const ul = list.find('ul');
-      q.options.forEach(option => {
-        const li = $(`<li>
-          <label class="item-radio item-content">
-            <input type="radio" name="question_${q.number}" value="${option}">
-            <i class="icon icon-radio"></i>
-            <div class="item-inner">
-              <div class="item-title">${option}</div>
-            </div>
-          </label>
-        </li>`);
-        ul.append(li);
+      q.options.forEach(opt => {
+        list.find('ul').append(`<li><label class="item-radio item-content">
+          <input type="radio" name="question_${q.number}" value="${opt}">
+          <i class="icon icon-radio"></i>
+          <div class="item-inner"><div class="item-title">${opt}</div></div>
+        </label></li>`);
       });
       wrapper.append(list);
     }
@@ -154,81 +125,58 @@ function generateQuestions(questions) {
   });
 }
 
+// View All Submissions
 function showSubmissions() {
-  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
-    fs.root.getFile(submitFileName, {}, function (fileEntry) {
-      fileEntry.file(function (file) {
-        var reader = new FileReader();
-        reader.onloadend = function () {
-          console.log("File content:", this.result);
-          try {
-            const data = JSON.parse(this.result);
-            let text = data.map(d => JSON.stringify(d)).join('\n\n');
-            app.dialog.alert(text || "No data.");
-          } catch (e) {
-            app.dialog.alert("Invalid JSON.");
-          }
-        };
-        reader.readAsText(file);
-      });
+  getFileEntry(false, fileEntry => {
+    readFile(fileEntry, content => {
+      try {
+        const data = JSON.parse(content);
+        const text = data.map(d => JSON.stringify(d)).join('\n\n') || "No data.";
+        app.dialog.alert(text);
+      } catch (_) {
+        app.dialog.alert("Invalid JSON.");
+      }
     });
-  }, onError);
+  });
 }
 
+// Delete File
 function deleteSubmissionsFile() {
-  if (!fileEntryGlobal) {
-    app.dialog.alert("Файлът не е намерен.");
-    return;
-  }
-
-  fileEntryGlobal.remove(function () {
-    submits = []; // Clear in-memory array
+  if (!fileEntryGlobal) return app.dialog.alert("Файлът не е намерен.");
+  fileEntryGlobal.remove(() => {
+    submits = [];
     fileEntryGlobal = null;
     app.dialog.alert("Файлът беше успешно изтрит.");
-  }, function (error) {
-    console.error("Грешка при изтриване на файла:", error);
+  }, err => {
+    console.error("Грешка при изтриване:", err);
     app.dialog.alert("Грешка при изтриване на файла.");
   });
 }
 
-
-$('body').on('click', '.delete-submissions-file', function () {
-  app.dialog.confirm("Сигурни ли сте, че искате да изтриете файла с всички отговори?", () => {
-    deleteSubmissionsFile();
-  });
-});
-
-
-$('body').on('click', '.show-question-answers', function () {
-  app.dialog.prompt('Въведете номера на въпроса:', function (qNumber) {
-    if (!qNumber || isNaN(qNumber)) {
-      app.dialog.alert('Моля, въведете валиден номер на въпрос.');
-      return;
-    }
-    const questionKey = `question_${qNumber.trim()}`;
-    showAnswersForQuestionKey(questionKey, qNumber.trim());
-  });
-});
-
-
-
-function showAnswersForQuestionKey(questionKey, displayNumber) {
-  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
-    fs.root.getFile(submitFileName, {}, function (fileEntry) {
-      fileEntry.file(function (file) {
-        var reader = new FileReader();
-        reader.onloadend = function () {
-          try {
-            const data = JSON.parse(this.result);
-            const answers = data.map(sub => `${sub.name}: ${sub[questionKey] || 'Няма отговор'}`);
-            const output = answers.join('<br><hr>') || "Няма отговори за този въпрос.";
-            app.dialog.alert(output, `Отговори на въпрос ${displayNumber}`);
-          } catch (e) {
-            app.dialog.alert("Файлът не може да се прочете.");
-          }
-        };
-        reader.readAsText(file);
-      });
+// Show Answers for a Question
+function showAnswersForQuestionKey(key, number) {
+  getFileEntry(false, fileEntry => {
+    readFile(fileEntry, content => {
+      try {
+        const data = JSON.parse(content);
+        const answers = data.map(s => `${s.name}: ${s[key] || 'Няма отговор'}`);
+        const output = answers.join('<br><hr>') || "Няма отговори.";
+        app.dialog.alert(output, `Отговори на въпрос ${number}`);
+      } catch (_) {
+        app.dialog.alert("Файлът не може да се прочете.");
+      }
     });
-  }, onError);
+  });
 }
+
+// Button bindings
+$('body').on('click', '.delete-submissions-file', () => {
+  app.dialog.confirm("Сигурни ли сте, че искате да изтриете файла с всички отговори?", deleteSubmissionsFile);
+});
+
+$('body').on('click', '.show-question-answers', () => {
+  app.dialog.prompt('Въведете номера на въпроса:', qNum => {
+    if (!qNum || isNaN(qNum)) return app.dialog.alert('Моля, въведете валиден номер на въпрос.');
+    showAnswersForQuestionKey(`question_${qNum.trim()}`, qNum.trim());
+  });
+});

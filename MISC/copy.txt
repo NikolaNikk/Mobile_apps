@@ -1,38 +1,22 @@
 <div class="block">
-  <button class="button button-fill view-question-answers">Виж отговорите на въпрос</button>
+  <button class="button button-fill show-question-answers">Покажи отговорите на въпрос</button>
 </div>
 
 
-$('body').on('click', '.view-question-answers', function () {
-  // Get questions from JSON again
-  fetch('questions.json')
-    .then(res => res.json())
-    .then(questions => {
-      const buttons = questions.map(q => ({
-        text: `${q.number}. ${q.question}`,
-        onClick: () => showAnswersForQuestion(q)
-      }));
-
-      app.actions.create({
-        buttons: [
-          ...buttons,
-          {
-            text: 'Затвори',
-            color: 'red'
-          }
-        ]
-      }).open();
-    })
-    .catch(err => {
-      console.error('Error loading questions:', err);
-      app.dialog.alert('Грешка при зареждане на въпросите.');
-    });
+$('body').on('click', '.show-question-answers', function () {
+  app.dialog.prompt('Въведете номера на въпроса:', function (qNumber) {
+    if (!qNumber || isNaN(qNumber)) {
+      app.dialog.alert('Моля, въведете валиден номер на въпрос.');
+      return;
+    }
+    const questionKey = `question_${qNumber.trim()}`;
+    showAnswersForQuestionKey(questionKey, qNumber.trim());
+  });
 });
 
 
-function showAnswersForQuestion(question) {
-  const questionKey = `question_${question.number}`;
 
+function showAnswersForQuestionKey(questionKey, displayNumber) {
   window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
     fs.root.getFile(submitFileName, {}, function (fileEntry) {
       fileEntry.file(function (file) {
@@ -42,7 +26,7 @@ function showAnswersForQuestion(question) {
             const data = JSON.parse(this.result);
             const answers = data.map(sub => `${sub.name}: ${sub[questionKey] || 'Няма отговор'}`);
             const output = answers.join('<br><hr>') || "Няма отговори за този въпрос.";
-            app.dialog.alert(output, `Отговори на: ${question.question}`);
+            app.dialog.alert(output, `Отговори на въпрос ${displayNumber}`);
           } catch (e) {
             app.dialog.alert("Файлът не може да се прочете.");
           }
@@ -52,4 +36,3 @@ function showAnswersForQuestion(question) {
     });
   }, onError);
 }
-

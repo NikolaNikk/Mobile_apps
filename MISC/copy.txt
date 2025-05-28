@@ -1,45 +1,22 @@
-<div class="popup popup-age">
-  <div class="view">
-    <div class="page">
-      <div class="page-content">
-        <div class="block">
-          <h3>Въведи възрастта си</h3>
-          <div class="list no-hairlines-md">
-            <ul>
-              <li class="item-content item-input">
-                <div class="item-inner">
-                  <div class="item-input-wrap">
-                    <input type="number" id="user-age" placeholder="напр. 18">
-                  </div>
-                </div>
-              </li>
-            </ul>
-          </div>
-          <div class="block">
-            <button class="button button-fill" id="start-survey">Започни анкетата</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+function showSubmissions() {
+  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
+    fs.root.getFile(submitFileName, {}, function (fileEntry) {
+      fileEntry.file(function (file) {
+        var reader = new FileReader();
+        reader.onloadend = function () {
+          console.log("File content:", this.result);
+          try {
+            const data = JSON.parse(this.result);
+            let text = data.map(d => JSON.stringify(d)).join('\n\n');
+            app.dialog.alert(text || "No data.");
+          } catch (e) {
+            app.dialog.alert("Invalid JSON.");
+          }
+        };
+        reader.readAsText(file);
+      });
+    });
+  }, onError);
+}
 
-
-
-
-$('#start-survey').on('click', function () {
-  const age = $('#user-age').val();
-  if (!age || age <= 0) {
-    app.dialog.alert('Моля, въведи валидна възраст.');
-    return;
-  }
-  app.popup.close('.popup-age');
-  app.age = age; // Store age for submission
-});
-
-
-const submitBtn = $('<button class="button button-fill" id="submit-btn">Изпрати анкетата</button>');
-container.append(submitBtn);
-
-
-
+<a class="button button-fill" onclick="showSubmissions()">Show All Submissions</a>

@@ -20,3 +20,28 @@ function showSubmissions() {
 }
 
 <a class="button button-fill" onclick="showSubmissions()">Show All Submissions</a>
+
+function showSubmissions() {
+  const filePath = cordova.file.externalRootDirectory + "Download/" + submitFileName;
+
+  window.resolveLocalFileSystemURL(filePath, function (fileEntry) {
+    fileEntry.file(function (file) {
+      const reader = new FileReader();
+      reader.onloadend = function () {
+        try {
+          const data = JSON.parse(this.result);
+          app.dialog.alert(
+            'Файлът е записан в: <br><code>' + filePath + '</code><br><br>Съдържание:<br>' +
+            '<pre>' + JSON.stringify(data, null, 2) + '</pre>'
+          );
+        } catch (e) {
+          app.dialog.alert("Неуспешно четене на съдържанието.");
+        }
+      };
+      reader.readAsText(file);
+    }, onError);
+  }, function (err) {
+    console.error("File not found:", err);
+    app.dialog.alert("Файлът не е намерен в:<br><code>" + filePath + "</code>");
+  });
+}

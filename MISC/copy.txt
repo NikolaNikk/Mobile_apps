@@ -1,47 +1,185 @@
-function showSubmissions() {
-  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
-    fs.root.getFile(submitFileName, {}, function (fileEntry) {
+var $ = Dom7;
+var device = Framework7.getDevice();
+var submitFileName = "submits.json";
+var submits = [];
+var fileEntryGlobal;
+
+// Framework7 app setup
+var app = new Framework7({
+  name: 'My App',
+  theme: 'auto',
+  el: '#app',
+  id: 'io.framework7.myapp',
+  routes: routes,
+  on: {
+    init: function () {
+      if (device.cordova) {
+        document.addEventListener('deviceready', onDeviceReady, false);
+      }
+    },
+  },
+});
+
+// On device ready, initialize the file
+function onDeviceReady() {
+  window.resolveLocalFileSystemURL(cordova.file.externalRootDirectory + "Download/", function (dirEntry) {
+    dirEntry.getFile(submitFileName, { create: true, exclusive: false }, function (fileEntry) {
+      fileEntryGlobal = fileEntry;
       fileEntry.file(function (file) {
         var reader = new FileReader();
         reader.onloadend = function () {
-          console.log("File content:", this.result);
-          try {
-            const data = JSON.parse(this.result);
-            let text = data.map(d => JSON.stringify(d)).join('\n\n');
-            app.dialog.alert(text || "No data.");
-          } catch (e) {
-            app.dialog.alert("Invalid JSON.");
+          if (this.result) {
+            try {
+              submits = JSON.parse(this.result);
+            } catch (e) {
+              submits = [];
+            }
           }
         };
         reader.readAsText(file);
-      });
-    });
+      }, onError);
+    }, onError);
   }, onError);
 }
 
-<a class="button button-fill" onclick="showSubmissions()">Show All Submissions</a>
+// Save submissions to file
+function saveSubmitsJson() {
+  if (!fileEntryGlobal) {
+    app.dialog.alert("Файлът не е инициализиран.");
+    return;
+  }
 
+  fileEntryGlobal.createWriter(function (fileWriter) {
+    fileWriter.onwriteend = function () {
+      app.dialog.alert("Успешно изпратено!");
+    };
+    fileWriter.onerror = onError;
+    fileWriter.write(JSON.stringify(submits, null, 2));
+  }, onError);
+}
+
+// Collect form answers
+function collectAnswers() {
+  const name = $('input[name="name"]').val().trim();
+  if (!name) {
+    app.dialog.alert("Моля, въведете име.");
+    return;
+  }
+
+  const alreadySubmitted = submits.some(s => s.name.toLowerCase() === name.toLowerCase());
+  if (alreadySubmitted) {
+    app.dialog.alert("Потребителят вече е изпратил отговор.");
+    return;
+  }
+
+  const answers = {
+    name: name,
+    timestamp: new Date().toLocaleString()
+  };
+
+  $('[name^="question_"]').each(function () {
+    const qName = this.name;
+    if (this.type === "radio" && this.checked) {
+      answers[qName] = this.value;
+    } else if (this.type === "text") {
+      answers[qName] = this.value;
+    }
+  });
+
+  submits.push(answers);
+  saveSubmitsJson();
+}
+
+// Error handler
+function onError(err) {
+  console.error("File error: ", err);
+  app.dialog.alert("Грешка при работа с файла.");
+}
+
+// Show submissions and file path
 function showSubmissions() {
-  const filePath = cordova.file.externalRootDirectory + "Download/" + submitFileName;
+  if (!fileEntryGlobal) {
+    app.dialog.alert("Файлът не е намерен.");
+    return;
+  }
 
-  window.resolveLocalFileSystemURL(filePath, function (fileEntry) {
-    fileEntry.file(function (file) {
-      const reader = new FileReader();
-      reader.onloadend = function () {
-        try {
-          const data = JSON.parse(this.result);
-          app.dialog.alert(
-            'Файлът е записан в: <br><code>' + filePath + '</code><br><br>Съдържание:<br>' +
-            '<pre>' + JSON.stringify(data, null, 2) + '</pre>'
-          );
-        } catch (e) {
-          app.dialog.alert("Неуспешно четене на съдържанието.");
-        }
-      };
-      reader.readAsText(file);
-    }, onError);
-  }, function (err) {
-    console.error("File not found:", err);
-    app.dialog.alert("Файлът не е намерен в:<br><code>" + filePath + "</code>");
+  fileEntryGlobal.file(function (file) {
+    var reader = new FileReader();
+    reader.onloadend = function () {
+      try {
+        const data = JSON.parse(this.result);
+        app.dialog.alert(
+          'Файл: <code>' + fileEntryGlobal.nativeURL + '</code><br><br>' +
+          '<pre>' + JSON.stringify(data, null, 2) + '</pre>'
+        );
+      } catch (e) {
+        app.dialog.alert("Неуспешно четене на съдържанието.");
+      }
+    };
+    reader.readAsText(file);
+  }, onError);
+}
+
+// Submit button handler
+$('body').on('click', 'button[type="submit"]', function (e) {
+  e.preventDefault();
+  collectAnswers();
+});
+
+// Show submissions button handler (add this to a menu or button)
+$('body').on('click', '.show-submissions', function () {
+  showSubmissions();
+});
+
+// Load questions from JSON and build the form
+fetch('questions.json')
+  .then(response => response.json())
+  .then(data => generateQuestions(data))
+  .catch(error => console.error('Error loading questions:', error));
+
+// Generate question form
+function generateQuestions(questions) {
+  const container = $('.block-strong');
+  container.html('');
+  questions.forEach(q => {
+    const wrapper = $('<div class="question-block"></div>');
+    const questionTitle = $(`<p><strong>${q.number}. ${q.question}</strong></p>`);
+    wrapper.append(questionTitle);
+
+    if (q.type === 'text') {
+      const input = $(`<div class="list no-hairlines-md">
+        <ul>
+          <li class="item-content item-input">
+            <div class="item-inner">
+              <div class="item-input-wrap">
+                <input type="text" name="question_${q.number}" placeholder="Вашият отговор..." required>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>`);
+      wrapper.append(input);
+    } else if (q.type === 'radio') {
+      const list = $('<div class="list"><ul></ul></div>');
+      const ul = list.find('ul');
+      q.options.forEach(option => {
+        const li = $(`<li>
+          <label class="item-radio item-content">
+            <input type="radio" name="question_${q.number}" value="${option}">
+            <i class="icon icon-radio"></i>
+            <div class="item-inner">
+              <div class="item-title">${option}</div>
+            </div>
+          </label>
+        </li>`);
+        ul.append(li);
+      });
+      wrapper.append(list);
+    }
+
+    container.append(wrapper);
   });
 }
+
+<button type="submit" class="button button-fill">Изпрати</button>
+<a href="#" class="button button-outline show-submissions">Покажи отговорите</a>
